@@ -1,5 +1,6 @@
 package bullscows;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -39,19 +40,19 @@ public class Main {
 
     private static String generateSecretCode(int amountDigits) {
         StringBuilder strSecretCodeRandom = new StringBuilder();
+        Random random = new Random();
         while (strSecretCodeRandom.length() < amountDigits) {
-            long pseudoRandomNumber = System.nanoTime();
-            long newDigit = pseudoRandomNumber % 10;
+            long newDigit = random.nextLong(10);
             if (!strSecretCodeRandom.toString().contains(String.valueOf(newDigit))) {
-                strSecretCodeRandom.append(pseudoRandomNumber % 10);
+                strSecretCodeRandom.append(newDigit);
             }
         }
         return strSecretCodeRandom.toString();
     }
 
     private static void runCheckingOfGame(String answerNumber) {
-        int amountCows = amountCows(answerNumber);
         int amountBulls = amountBulls(answerNumber);
+        int amountCows = amountCowsWithBulls(answerNumber) - amountBulls;
         if (amountBulls == 0 && amountCows == 0) {
             System.out.printf("Grade: None.%n");
         } else if (amountBulls > 0 && amountCows > 0) {
@@ -79,14 +80,15 @@ public class Main {
         return amountBulls;
     }
 
-    private static int amountCows(String answerNumber) {
+    private static int amountCowsWithBulls(String answerNumber) {
         char[] secretCodeCharArr = secretCode.toCharArray();
         char[] answerNumberCharArr = answerNumber.toCharArray();
         int amountCows = 0;
-        for (int i = 0; i < secretCodeCharArr.length; i++) {
-            for (int j = 0; j < answerNumberCharArr.length; j++) {
-                if (secretCodeCharArr[i] == answerNumberCharArr[j] && i != j) {
+        for (int i = 0; i < answerNumberCharArr.length; i++) {
+            for (int j = 0; j < secretCodeCharArr.length; j++) {
+                if (secretCodeCharArr[j] == answerNumberCharArr[i] && i != j) {
                     amountCows++;
+                    break;
                 }
             }
         }
