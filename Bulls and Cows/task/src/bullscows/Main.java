@@ -5,14 +5,15 @@ import java.util.Scanner;
 
 public class Main {
     private static String secretCode;
-    private static boolean isWin = false;
+    private static boolean isRunning = true;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         int counterTurn = 1;
         generateAndSetSecretCode();
-        while (!isWin) {
+        while (isRunning) {
+            System.out.println("Okay, let's start a game!");
             System.out.printf("Turn %s:%n", counterTurn++);
             String currentTurn = scanner.nextLine();
             runCheckingOfGame(currentTurn);
@@ -24,18 +25,41 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         boolean isGenerated = false;
         while (!isGenerated) {
+            int amountDigits;
+            int countPossibleSymbols;
             System.out.println("Please, enter the secret code's length:");
-            int amountDigits = scanner.nextInt();
-            if (amountDigits > 36) {
-                System.out.printf("Error: can't generate a secret number with a length of %s because there aren't enough unique digits.", amountDigits);
-            } else {
-                System.out.println("Input the number of possible symbols in the code:");
-                int countPossibleSymbols = scanner.nextInt();
-                char[] possibleSymbols = fillArrayWithPossibleSymbols(countPossibleSymbols, amountDigits);
-
-                secretCode = generateSecretCode(amountDigits, possibleSymbols);
-                isGenerated = true;
+            String inputStrAmountDigits = scanner.nextLine();
+            try {
+                amountDigits = Integer.parseInt(inputStrAmountDigits);
+            } catch (Exception e) {
+                System.out.printf("Error: \"%s\" isn't a valid number.", inputStrAmountDigits);
+                isRunning = false;
+                return;
             }
+            System.out.println("Input the number of possible symbols in the code:");
+            String inputStrCountPossibleSymbols = scanner.nextLine();
+            try {
+                countPossibleSymbols = Integer.parseInt(inputStrCountPossibleSymbols);
+            } catch (Exception e) {
+                System.out.printf("Error: \"%s\" isn't a valid number.", inputStrCountPossibleSymbols);
+                isRunning = false;
+                return;
+            }
+            if (countPossibleSymbols > 36) {
+                System.out.println("Error: maximum number of possible symbols in the code is 36 (0-9, a-z).");
+                isRunning = false;
+                return;
+            }
+            if (countPossibleSymbols < amountDigits || amountDigits == 0) {
+                System.out.printf("Error: it's not possible to generate a code with a length of %d with %d unique symbols.", amountDigits, countPossibleSymbols);
+                isRunning = false;
+                return;
+            }
+            char[] possibleSymbols = fillArrayWithPossibleSymbols(countPossibleSymbols, amountDigits);
+
+            secretCode = generateSecretCode(amountDigits, possibleSymbols);
+            isGenerated = true;
+
         }
 
     }
@@ -102,7 +126,7 @@ public class Main {
             System.out.printf("Grade: %s bull(s).%n", amountBulls);
         }
         if (amountBulls == secretCode.length()) {
-            isWin = true;
+            isRunning = false;
             System.out.println("Congratulations! You guessed the secret code.");
         }
     }
