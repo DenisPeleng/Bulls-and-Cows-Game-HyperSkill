@@ -8,8 +8,9 @@ public class Main {
     private static boolean isWin = false;
 
     public static void main(String[] args) {
-        int counterTurn = 1;
         Scanner scanner = new Scanner(System.in);
+
+        int counterTurn = 1;
         generateAndSetSecretCode();
         while (!isWin) {
             System.out.printf("Turn %s:%n", counterTurn++);
@@ -18,33 +19,71 @@ public class Main {
         }
     }
 
+
     private static void generateAndSetSecretCode() {
         Scanner scanner = new Scanner(System.in);
         boolean isGenerated = false;
         while (!isGenerated) {
             System.out.println("Please, enter the secret code's length:");
             int amountDigits = scanner.nextInt();
-            if (amountDigits > 10) {
+            if (amountDigits > 36) {
                 System.out.printf("Error: can't generate a secret number with a length of %s because there aren't enough unique digits.", amountDigits);
             } else {
-                String generatedSecretCode = "0";
-                while (generatedSecretCode.startsWith("0")) {
-                    generatedSecretCode = generateSecretCode(amountDigits);
-                }
-                secretCode = generatedSecretCode;
+                System.out.println("Input the number of possible symbols in the code:");
+                int countPossibleSymbols = scanner.nextInt();
+                char[] possibleSymbols = fillArrayWithPossibleSymbols(countPossibleSymbols, amountDigits);
+
+                secretCode = generateSecretCode(amountDigits, possibleSymbols);
                 isGenerated = true;
             }
         }
 
     }
 
-    private static String generateSecretCode(int amountDigits) {
+    private static char[] fillArrayWithPossibleSymbols(int countPossibleSymbols, int amountDigits) {
+        char[] possibleSymbols = new char[countPossibleSymbols];
+        int currentFilledCells = 0;
+        for (int i = 0; i < 10; i++) {
+            if (currentFilledCells == countPossibleSymbols) {
+                break;
+            }
+            possibleSymbols[i] = (char) (i + '0');
+            currentFilledCells++;
+        }
+        if (currentFilledCells == countPossibleSymbols) {
+            System.out.print("The secret is prepared: ");
+            for (int i = 0; i < amountDigits; i++) {
+                System.out.print("*");
+            }
+            System.out.printf(" (0-%c).%n", possibleSymbols[possibleSymbols.length - 1]);
+        } else {
+            char chrToFill = 'a';
+            for (int i = 10; i < 36; i++) {
+                if (currentFilledCells == countPossibleSymbols) {
+                    break;
+                }
+                possibleSymbols[i] = chrToFill;
+                chrToFill++;
+                currentFilledCells++;
+            }
+            System.out.print("The secret is prepared: ");
+            for (int i = 0; i < amountDigits; i++) {
+                System.out.print("*");
+            }
+            System.out.printf(" (0-9, a-%c).%n", possibleSymbols[possibleSymbols.length - 1]);
+        }
+        return possibleSymbols;
+    }
+
+    private static String generateSecretCode(int amountDigits, char[] possibleSymbols) {
+        int amountOfSymbols = possibleSymbols.length;
         StringBuilder strSecretCodeRandom = new StringBuilder();
         Random random = new Random();
         while (strSecretCodeRandom.length() < amountDigits) {
-            long newDigit = random.nextLong(10);
-            if (!strSecretCodeRandom.toString().contains(String.valueOf(newDigit))) {
-                strSecretCodeRandom.append(newDigit);
+            int indexOfSymbol = random.nextInt(amountOfSymbols);
+            char symbol = possibleSymbols[indexOfSymbol];
+            if (!strSecretCodeRandom.toString().contains(String.valueOf(symbol))) {
+                strSecretCodeRandom.append(symbol);
             }
         }
         return strSecretCodeRandom.toString();
